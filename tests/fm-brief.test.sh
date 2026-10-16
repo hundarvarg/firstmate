@@ -1514,6 +1514,7 @@ test_branch_prefix_command_is_shell_safe() {
   marker="$TMP_ROOT/branch-prefix-shell-safe-marker"
   id='brief-branch-safe-g3'
   # Keep the literal ref valid even when TMPDIR contains a dot-prefixed component.
+  # shellcheck disable=SC2016 # Literal command substitution must remain unexpanded for the injection regression.
   prefix='$(touch${IFS}${FM_TEST_BRANCH_MARKER})'
   mkdir -p "$home/data"
   FM_HOME="$home" "$ROOT/bin/fm-brief.sh" "$id" some-proj --mode local-only --branch-prefix "$prefix" >/dev/null 2>&1 \

@@ -451,6 +451,7 @@ test_promotion_branch_command_is_shell_safe() {
   marker="$TMP_ROOT/promote-branch-shell-safe-marker"
   id=promote-branch-safe-e3
   # Keep the literal ref valid even when TMPDIR contains a dot-prefixed component.
+  # shellcheck disable=SC2016 # Literal command substitution must remain unexpanded for the injection regression.
   prefix='$(touch${IFS}${FM_TEST_BRANCH_MARKER})/'
   meta="$home/state/$id.meta"
   mkdir -p "$home/state"
