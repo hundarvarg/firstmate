@@ -358,14 +358,20 @@ STUB
 
     # Both the delivered prompt and persisted relaunch brief are public outputs.
     for contract in "$payload" "$home/data/$id/brief.md"; do
-      assert_grep "This replaces the scout rule limiting outside-worktree writes to the report and status file." "$contract" \
-        "$mode: $contract retained the scout-only write restriction"
-      assert_grep "Keep project edits inside this worktree; keep proof and scratch output outside it, under \`$home/data/$id/\` or a temporary directory." "$contract" \
-        "$mode: $contract omitted the ship scratch-location rule"
-      assert_grep "Outside the worktree, write only that task material and the status and steering-inbox records authorized below." "$contract" \
-        "$mode: $contract omitted the ship outside-worktree write boundary"
-      assert_grep "Leave the worktree clean before reporting done." "$contract" \
-        "$mode: $contract omitted the clean-before-done rule"
+      assert_grep 'This storage contract supersedes any earlier scratch-location or outside-worktree write restriction.' "$contract" \
+        "$mode: $contract retained the obsolete scout write restriction"
+      assert_grep 'outside every containing Git or source root' "$contract" \
+        "$mode: $contract omitted the physical runtime boundary"
+      assert_grep "Authored private task instructions, reports, and handoffs belong in \`$home/data/$id/\`" "$contract" \
+        "$mode: $contract lost authored private-record permission"
+      assert_grep 'actual executor-owned paths and explicit grants' "$contract" \
+        "$mode: $contract displaced native support ownership"
+      assert_grep 'Ordinary ignored build and dependency output stays with its source-copy owner' "$contract" \
+        "$mode: $contract lost retained ignored output"
+      assert_no_grep 'keep proof and scratch output outside it, under' "$contract" \
+        "$mode: $contract still offers task data for generated scratch"
+      assert_grep 'Leave tracked task changes committed and the worktree clean before reporting done' "$contract" \
+        "$mode: $contract omitted the tracked clean-before-done rule"
     done
 
     # Compare the public outputs of both real generation paths. The promoted
