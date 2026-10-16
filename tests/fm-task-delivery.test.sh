@@ -450,7 +450,8 @@ test_promotion_branch_command_is_shell_safe() {
   home="$TMP_ROOT/promote-branch-shell-safe/home"
   marker="$TMP_ROOT/promote-branch-shell-safe-marker"
   id=promote-branch-safe-e3
-  prefix="\$(touch\${IFS}$marker)/"
+  # Keep the literal ref valid even when TMPDIR contains a dot-prefixed component.
+  prefix='$(touch${IFS}${FM_TEST_BRANCH_MARKER})/'
   meta="$home/state/$id.meta"
   mkdir -p "$home/state"
   printf 'window=fm-%s\nkind=scout\nworktree=/tmp/wt\n' "$id" > "$meta"
@@ -467,7 +468,7 @@ test_promotion_branch_command_is_shell_safe() {
   [ -n "$command" ] || fail "promotion instructions exposed no branch-creation command"
   repo="$TMP_ROOT/promote-branch-shell-safe-repo"
   git init -q "$repo" || fail "could not initialize shell-safety fixture repository"
-  ( cd "$repo" && eval "$command" ) || fail "promotion branch-creation command did not run"
+  ( cd "$repo" && export FM_TEST_BRANCH_MARKER="$marker" && eval "$command" ) || fail "promotion branch-creation command did not run"
   assert_absent "$marker" "promotion branch command executed the prefix's command substitution"
   branch=$(git -C "$repo" branch --show-current)
   [ "$branch" = "$prefix$id" ] \

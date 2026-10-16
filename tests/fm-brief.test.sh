@@ -1513,7 +1513,8 @@ test_branch_prefix_command_is_shell_safe() {
   home="$TMP_ROOT/branch-prefix-shell-safe-home"
   marker="$TMP_ROOT/branch-prefix-shell-safe-marker"
   id='brief-branch-safe-g3'
-  prefix="\$(touch\${IFS}$marker)"
+  # Keep the literal ref valid even when TMPDIR contains a dot-prefixed component.
+  prefix='$(touch${IFS}${FM_TEST_BRANCH_MARKER})'
   mkdir -p "$home/data"
   FM_HOME="$home" "$ROOT/bin/fm-brief.sh" "$id" some-proj --mode local-only --branch-prefix "$prefix" >/dev/null 2>&1 \
     || fail "a ref-format-valid metacharacter prefix should scaffold safely"
@@ -1523,7 +1524,7 @@ test_branch_prefix_command_is_shell_safe() {
   [ -n "$command" ] || fail "generated brief exposed no branch-creation command"
   repo="$TMP_ROOT/branch-prefix-shell-safe-repo"
   git init -q "$repo" || fail "could not initialize shell-safety fixture repository"
-  ( cd "$repo" && eval "$command" ) || fail "generated branch-creation command did not run"
+  ( cd "$repo" && export FM_TEST_BRANCH_MARKER="$marker" && eval "$command" ) || fail "generated branch-creation command did not run"
   assert_absent "$marker" "generated branch command executed the prefix's command substitution"
   branch=$(git -C "$repo" branch --show-current)
   [ "$branch" = "$prefix$id" ] \
